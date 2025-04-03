@@ -8,7 +8,7 @@ nexus:
   docker:
     enabled: true
     registries:
-      - host: nexus1.jhmk3s.duckdns.org
+      - host: nexus1-d.jhmk3s.duckdns.org
         port: 5000
         secretName: registry-secret
   env:
@@ -110,20 +110,12 @@ ingress:
       hosts:
         - nexus1.jhmk3s.duckdns.org
 
-
 service:
   name: nexus3
   enabled: true
   labels: {}
   annotations: {}
   type: ClusterIP
-
-
-nexusProxyRoute:
-  enabled: false
-  labels:
-  annotations:
-  # path: /nexus
 
 persistence:
   enabled: true
@@ -133,27 +125,3 @@ persistence:
   # If PersistentDisk already exists you can create a PV for it by including the 2 following keypairs.
   # pdName: nexus-data-disk
   # fsType: ext4
-
-tolerations: []
-
-# Enable configmap and add data in configmap
-config:
-  enabled: false
-  mountPath: /sonatype-nexus-conf
-  data: []
-
-# # To use an additional secret, set enable to true and add data
-secret:
-  enabled: false
-  mountPath: /etc/secret-volume
-  readOnly: true
-  data: []
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
