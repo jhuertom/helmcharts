@@ -17,7 +17,7 @@ nexus:
   docker:
     enabled: true
     registries:
-      - host: chart.local
+      - host: nexus1-docker.jhmk3s.duckdns.org
         port: 5000
         secretName: registry-secret
   env:
