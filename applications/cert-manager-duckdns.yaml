@@ -18,5 +18,5 @@ spec:
         clusterIssuer:
           production.create=true
           staging.create=true
-	        email=jhuertom@gmail.com
-	      logLevel=2
+          email=jhuertom@gmail.com
+        logLevel=2
