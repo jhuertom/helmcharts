@@ -16,7 +16,9 @@ spec:
     helm:
       values: |
         clusterIssuer:
-          production.create=true
-          staging.create=true
-          email=jhuertom@gmail.com
-        logLevel=2
+          production:
+            create: true
+          staging:
+            create: true
+          email: jhuertom@gmail.com
+        logLevel: 2
