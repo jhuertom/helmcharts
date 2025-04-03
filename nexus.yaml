@@ -1,17 +1,8 @@
----
-statefulset:
-  # This is not supported
-  enabled: false
-deploymentStrategy: Recreate
 image:
   # Sonatype Official Public Image
   repository: sonatype/nexus3
   tag: 3.64.0
   pullPolicy: IfNotPresent
-imagePullSecrets:
-# for image registries that require login, specify the name of the existing
-# kubernetes secret
-#   - name: <pull-secret-name>
 
 nexus:
   docker:
@@ -137,16 +128,7 @@ nexusProxyRoute:
 persistence:
   enabled: true
   accessMode: ReadWriteOnce
-  ## If defined, storageClass: <storageClass>
-  ## If set to "-", storageClass: "", which disables dynamic provisioning
-  ## If undefined (the default) or set to null, no storageClass spec is
-  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-  ##   GKE, AWS & OpenStack)
-  ##
-  # existingClaim:
-  # annotations:
-  #  "helm.sh/resource-policy": keep
-  # storageClass: "-"
+  storageClass: nfs-client
   storageSize: 8Gi
   # If PersistentDisk already exists you can create a PV for it by including the 2 following keypairs.
   # pdName: nexus-data-disk
