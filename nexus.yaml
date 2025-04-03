@@ -23,13 +23,13 @@ nexus:
     - name: NEXUS_SECURITY_RANDOMPASSWORD
       value: "true"
 
-  resources:
-    requests:
-      cpu: 4
-      memory: 8Gi
-    limits:
-      cpu: 4
-      memory: 8Gi
+  # resources:
+  #   requests:
+  #     cpu: 4
+  #     memory: 8Gi
+  #   limits:
+  #     cpu: 4
+  #     memory: 8Gi
 
 ingress:
   enabled: true
