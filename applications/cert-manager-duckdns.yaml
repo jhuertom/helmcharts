@@ -1,0 +1,22 @@
+# OJO: En argo hay que añadir al values el duckdns.token='XXXXXXX'
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-duckdns
+  namespace: argocd
+spec:
+  destination:
+    namespace: cert-manager
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: deploy/cert-manager-webhook-duckdns
+    repoURL: https://github.com/jhuertom/cert-manager-webhook-duckdns/
+    targetRevision: HEAD
+    helm:
+      values: |
+        clusterIssuer:
+          production.create=true
+          staging.create=true
+	        email=jhuertom@gmail.com
+	      logLevel=2
