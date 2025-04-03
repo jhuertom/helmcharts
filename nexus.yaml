@@ -8,7 +8,7 @@ nexus:
   docker:
     enabled: true
     registries:
-      - host: nexus1-docker.jhmk3s.duckdns.org
+      - host: nexus1.jhmk3s.duckdns.org
         port: 5000
         secretName: registry-secret
   env:
