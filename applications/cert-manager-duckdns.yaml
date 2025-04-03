@@ -16,7 +16,7 @@ spec:
     helm:
       values: |
         duckdns:
-          token: 'XXXXXXX'
+          token: XXXXXXX
         clusterIssuer:
           production:
             create: true
