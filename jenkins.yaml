@@ -690,7 +690,7 @@ controller:
 
   ingress:
     # -- Enables ingress
-    enabled: false
+    enabled: true
 
     # Override for the default paths that map requests to the backend
     # -- Override for the default Ingress paths
@@ -711,16 +711,10 @@ controller:
     # -- Ingress labels
     labels: {}
     # -- Ingress annotations
-    annotations: {}
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
-    # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
-    # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
-    # ingressClassName: nginx
-
-    # Set this path to jenkinsUriPrefix above or use annotations to rewrite path
-    # -- Ingress path
-    path:
+    annotations:
+      cert-manager.io/cluster-issuer: cert-manager-webhook-duckdns-production
+      kubernetes.io/ingress.class: "traefik"
+      traefik.ingress.kubernetes.io/redirect-entry-point: https
 
     # configures the hostname e.g. jenkins.example.com
     # -- Ingress hostname
@@ -728,10 +722,10 @@ controller:
     # -- Hostname to serve assets from
     resourceRootUrl:
     # -- Ingress TLS configuration
-    tls: []
-    # - secretName: jenkins.cluster.local
-    #   hosts:
-    #     - jenkins.cluster.local
+    tls:
+    - secretName: jenkins-tls-cert
+      hosts:
+        - jenkins.jhmk3s.duckdns.org
 
   # often you want to have your controller all locked down and private,
   # but you still want to get webhooks from your SCM
@@ -1241,29 +1235,9 @@ additionalClouds: {}
 #    kubernetesURL: https://api.remote-cloud.com
 
 persistence:
-  # -- Enable the use of a Jenkins PVC
   enabled: true
-
-  # A manually managed Persistent Volume and Claim
-  # Requires persistence.enabled: true
-  # If defined, PVC must be created manually before volume will be bound
-  # -- Provide the name of a PVC
-  existingClaim:
-
-  # jenkins data Persistent Volume Storage Class
-  # If defined, storageClassName: <storageClass>
-  # If set to "-", storageClassName: "", which disables dynamic provisioning
-  # If undefined (the default) or set to null, no storageClassName spec is
-  #   set, choosing the default provisioner (gp2 on AWS, standard on GKE, AWS & OpenStack)
-  # -- Storage class for the PVC
-  storageClass:
-  # -- Annotations for the PVC
-  annotations: {}
-  # -- Labels for the PVC
-  labels: {}
-  # -- The PVC access mode
+  storageClass: nfs-client
   accessMode: "ReadWriteOnce"
-  # -- The size of the PVC
   size: "8Gi"
 
   # ref: https://kubernetes.io/docs/concepts/storage/volume-pvc-datasource/
@@ -1334,23 +1308,6 @@ serviceAccount:
   # -- Auto-mount ServiceAccount token
   automountServiceAccountToken: true
 
-
-serviceAccountAgent:
-  # -- Configures if an agent ServiceAccount should be created
-  create: false
-
-  # If not set and create is true, a name is generated using the fullname template
-  # -- The name of the agent ServiceAccount to be used by access-controlled resources
-  name:
-  # -- Configures annotations for the agent ServiceAccount
-  annotations: {}
-  # -- Configures extra labels for the agent ServiceAccount
-  extraLabels: {}
-  # -- Agent ServiceAccount image pull secret
-  imagePullSecretName:
-  # -- Auto-mount ServiceAccount token
-  automountServiceAccountToken: true
-
 # -- Checks if any deprecated values are used
 checkDeprecation: true
 
@@ -1360,16 +1317,3 @@ awsSecurityGroupPolicies:
     - name: ""
       securityGroupIds: []
       podSelector: {}
-
-# Here you can configure unit tests values when executing the helm unittest in the CONTRIBUTING.md
-helmtest:
-  # A testing framework for bash
-  bats:
-    # Bash Automated Testing System (BATS)
-    image:
-      # -- Registry of the image used to test the framework
-      registry: "docker.io"
-      # -- Repository of the image used to test the framework
-      repository: "bats/bats"
-      # -- Tag of the image to test the framework
-      tag: "1.11.1"
