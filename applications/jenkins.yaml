@@ -14,4 +14,4 @@ spec:
     targetRevision: 5.8.32
     helm:
       valueFiles:
-        - https://raw.githubusercontent.com/jhuertom/helmcharts/refs/heads/main/jenkins.yaml
+        - https://raw.githubusercontent.com/jhuertom/helmcharts/refs/heads/main/values/jenkins.yaml
