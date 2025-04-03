@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nexus
+  namespace: argocd
+spec:
+  destination:
+    namespace: nexus
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: nexus-repository-manager
+    repoURL: https://sonatype.github.io/helm3-charts/
+    targetRevision: 64.2.0
+    helm:
+      valueFiles:
+        - https://raw.githubusercontent.com/jhuertom/helmcharts/refs/heads/main/nexus.yaml
