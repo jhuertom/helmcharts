@@ -387,39 +387,6 @@ gitea:
       scrapeTimeout: ""
       tlsConfig: {}
 
-  ## @param gitea.ldap LDAP configuration
-  ldap:
-    []
-    # - name: "LDAP 1"
-    #  existingSecret:
-    #  securityProtocol:
-    #  host:
-    #  port:
-    #  userSearchBase:
-    #  userFilter:
-    #  adminFilter:
-    #  emailAttribute:
-    #  bindDn:
-    #  bindPassword:
-    #  usernameAttribute:
-    #  publicSSHKeyAttribute:
-
-  # Either specify inline `key` and `secret` or refer to them via `existingSecret`
-  ## @param gitea.oauth OAuth configuration
-  oauth:
-    []
-    # - name: 'OAuth 1'
-    #   provider:
-    #   key:
-    #   secret:
-    #   existingSecret:
-    #   autoDiscoverUrl:
-    #   useCustomUrls:
-    #   customAuthUrl:
-    #   customTokenUrl:
-    #   customProfileUrl:
-    #   customEmailUrl:
-
   ## @param gitea.config.server.SSH_PORT SSH port for rootlful Gitea image
   ## @param gitea.config.server.SSH_LISTEN_PORT SSH port for rootless Gitea image
   config:
@@ -520,7 +487,7 @@ gitea:
 ## Redis cluster and [Redis](#redis) cannot be enabled at the same time.
 ## @descriptionEnd
 redis-cluster:
-  enabled: true
+  enabled: false
   usePassword: false
   cluster:
     nodes: 3 # default: 6
@@ -537,7 +504,7 @@ redis-cluster:
 ## Redis and [Redis cluster](#redis-cluster) cannot be enabled at the same time.
 ## @descriptionEnd
 redis:
-  enabled: false
+  enabled: true
   architecture: standalone
   global:
     redis:
@@ -563,7 +530,7 @@ postgresql-ha:
       database: gitea
       password: gitea
       username: gitea
-  enabled: true
+  enabled: false
   postgresql:
     repmgrPassword: changeme2
     postgresPassword: changeme1
@@ -585,7 +552,7 @@ postgresql-ha:
 ## @param postgresql.global.postgresql.service.ports.postgresql PostgreSQL service port (overrides `service.ports.postgresql`)
 ## @param postgresql.primary.persistence.size PVC Storage Request for PostgreSQL volume
 postgresql:
-  enabled: false
+  enabled: true
   global:
     postgresql:
       auth:
