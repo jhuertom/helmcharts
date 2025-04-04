@@ -20,6 +20,9 @@ global:
   #   hostnames:
   #   - example.com
 
+## @param namespace An explicit namespace to deploy gitea into. Defaults to the release namespace if not specified
+namespace: ""
+
 ## @param replicaCount number of replicas for the deployment
 replicaCount: 1
 
@@ -62,6 +65,36 @@ imagePullSecrets: []
 ## @param podSecurityContext.fsGroup Set the shared file system group for all containers in the pod.
 podSecurityContext:
   fsGroup: 1000
+
+## @param containerSecurityContext Security context
+containerSecurityContext: {}
+#   allowPrivilegeEscalation: false
+#   capabilities:
+#     drop:
+#       - ALL
+#   # Add the SYS_CHROOT capability for root and rootless images if you intend to
+#   # run pods on nodes that use the container runtime cri-o. Otherwise, you will
+#   # get an error message from the SSH server that it is not possible to read from
+#   # the repository.
+#   # https://gitea.com/gitea/helm-gitea/issues/161
+#     add:
+#       - SYS_CHROOT
+#   privileged: false
+#   readOnlyRootFilesystem: true
+#   runAsGroup: 1000
+#   runAsNonRoot: true
+#   runAsUser: 1000
+
+## @deprecated The securityContext variable has been split two:
+## - containerSecurityContext
+## - podSecurityContext.
+## @param securityContext Run init and Gitea containers as a specific securityContext
+securityContext: {}
+
+## @param podDisruptionBudget Pod disruption budget
+podDisruptionBudget: {}
+#  maxUnavailable: 1
+#  minAvailable: 1
 
 ## @section Service
 service:
@@ -205,6 +238,23 @@ deployment:
   labels: {}
   annotations: {}
 
+## @section ServiceAccount
+
+## @param serviceAccount.create Enable the creation of a ServiceAccount
+## @param serviceAccount.name Name of the created ServiceAccount, defaults to release name. Can also link to an externally provided ServiceAccount that should be used.
+## @param serviceAccount.automountServiceAccountToken Enable/disable auto mounting of the service account token
+## @param serviceAccount.imagePullSecrets Image pull secrets, available to the ServiceAccount
+## @param serviceAccount.annotations Custom annotations for the ServiceAccount
+## @param serviceAccount.labels Custom labels for the ServiceAccount
+serviceAccount:
+  create: false
+  name: ""
+  automountServiceAccountToken: false
+  imagePullSecrets: []
+  # - name: private-registry-access
+  annotations: {}
+  labels: {}
+
 ## @section Persistence
 #
 ## @param persistence.enabled Enable persistent storage
@@ -232,6 +282,46 @@ persistence:
   volumeName: ""
   annotations:
     helm.sh/resource-policy: keep
+
+## @param extraContainers Additional sidecar containers to run in the pod
+extraContainers: []
+#  - name: sidecar-bob
+#    image: busybox
+#    command: [/bin/sh, -c, 'echo "Hello world"; sleep 86400']
+
+## @param extraVolumes Additional volumes to mount to the Gitea deployment
+extraVolumes: []
+# - name: postgres-ssl-vol
+#   secret:
+#     secretName: gitea-postgres-ssl
+
+## @param extraContainerVolumeMounts Mounts that are only mapped into the Gitea runtime/main container, to e.g. override custom templates.
+extraContainerVolumeMounts: []
+
+## @param extraInitVolumeMounts Mounts that are only mapped into the init-containers. Can be used for additional preconfiguration.
+extraInitVolumeMounts: []
+
+## @deprecated The extraVolumeMounts variable has been split two:
+## - extraContainerVolumeMounts
+## - extraInitVolumeMounts
+## As an example, can be used to mount a client cert when connecting to an external Postgres server.
+## @param extraVolumeMounts **DEPRECATED** Additional volume mounts for init containers and the Gitea main container
+extraVolumeMounts: []
+# - name: postgres-ssl-vol
+#   readOnly: true
+#   mountPath: "/pg-ssl"
+
+## @section Init
+## @param initPreScript Bash shell script copied verbatim to the start of the init-container.
+initPreScript: ""
+## @param initContainersScriptsVolumeMountPath Path to mount the scripts consumed from the Secrets
+initContainersScriptsVolumeMountPath: "/usr/sbinx"
+#
+# initPreScript: |
+#   mkdir -p /data/git/.postgresql
+#   cp /pg-ssl/* /data/git/.postgresql/
+#   chown -R git:git /data/git/.postgresql/
+#   chmod 400 /data/git/.postgresql/postgresql.key
 
 ## @param initContainers.resources.limits initContainers.limits Kubernetes resource limits for init containers
 ## @param initContainers.resources.requests.cpu initContainers.requests.cpu Kubernetes cpu resource limits for init containers
@@ -276,6 +366,27 @@ gitea:
     email: "gitea@local.domain"
     passwordMode: keepUpdated
 
+  ## @param gitea.metrics.enabled Enable Gitea metrics
+  ## @param gitea.metrics.token used for `bearer` token authentication on metrics endpoint. If not specified or empty metrics endpoint is public.
+  ## @param gitea.metrics.serviceMonitor.enabled Enable Gitea metrics service monitor. Requires, that `gitea.metrics.enabled` is also set to true, to enable metrics generally.
+  ## @param gitea.metrics.serviceMonitor.interval Interval at which metrics should be scraped. If not specified Prometheus' global scrape interval is used.
+  ## @param gitea.metrics.serviceMonitor.relabelings RelabelConfigs to apply to samples before scraping.
+  ## @param gitea.metrics.serviceMonitor.scheme HTTP scheme to use for scraping. For example `http` or `https`. Default is http.
+  ## @param gitea.metrics.serviceMonitor.scrapeTimeout Timeout after which the scrape is ended. If not specified, global Prometheus scrape timeout is used.
+  ## @param gitea.metrics.serviceMonitor.tlsConfig TLS configuration to use when scraping the metric endpoint by Prometheus.
+  metrics:
+    enabled: false
+    token:
+    serviceMonitor:
+      enabled: false
+      #  additionalLabels:
+      #    prometheus-release: prom1
+      interval: ""
+      relabelings: []
+      scheme: ""
+      scrapeTimeout: ""
+      tlsConfig: {}
+
   ## @param gitea.config.server.SSH_PORT SSH port for rootlful Gitea image
   ## @param gitea.config.server.SSH_LISTEN_PORT SSH port for rootless Gitea image
   config:
@@ -305,16 +416,78 @@ gitea:
   ssh:
     logLevel: "INFO"
 
-## @section redis
-## @param redis.enabled Enable redis standalone or replicated
-## @param redis.architecture Whether to use standalone or replication
+  ## @section LivenessProbe
+  #
+  ## @param gitea.livenessProbe.enabled Enable liveness probe
+  ## @param gitea.livenessProbe.tcpSocket.port Port to probe for liveness
+  ## @param gitea.livenessProbe.initialDelaySeconds Initial delay before liveness probe is initiated
+  ## @param gitea.livenessProbe.timeoutSeconds Timeout for liveness probe
+  ## @param gitea.livenessProbe.periodSeconds Period for liveness probe
+  ## @param gitea.livenessProbe.successThreshold Success threshold for liveness probe
+  ## @param gitea.livenessProbe.failureThreshold Failure threshold for liveness probe
+  # Modify the liveness probe for your needs or completely disable it by commenting out.
+  livenessProbe:
+    enabled: true
+    tcpSocket:
+      port: http
+    initialDelaySeconds: 200
+    timeoutSeconds: 1
+    periodSeconds: 10
+    successThreshold: 1
+    failureThreshold: 10
+
+  ## @section ReadinessProbe
+  #
+  ## @param gitea.readinessProbe.enabled Enable readiness probe
+  ## @param gitea.readinessProbe.tcpSocket.port Port to probe for readiness
+  ## @param gitea.readinessProbe.initialDelaySeconds Initial delay before readiness probe is initiated
+  ## @param gitea.readinessProbe.timeoutSeconds Timeout for readiness probe
+  ## @param gitea.readinessProbe.periodSeconds Period for readiness probe
+  ## @param gitea.readinessProbe.successThreshold Success threshold for readiness probe
+  ## @param gitea.readinessProbe.failureThreshold Failure threshold for readiness probe
+  # Modify the readiness probe for your needs or completely disable it by commenting out.
+  readinessProbe:
+    enabled: true
+    tcpSocket:
+      port: http
+    initialDelaySeconds: 5
+    timeoutSeconds: 1
+    periodSeconds: 10
+    successThreshold: 1
+    failureThreshold: 3
+
+  # # Uncomment the startup probe to enable and modify it for your needs.
+  ## @section StartupProbe
+  #
+  ## @param gitea.startupProbe.enabled Enable startup probe
+  ## @param gitea.startupProbe.tcpSocket.port Port to probe for startup
+  ## @param gitea.startupProbe.initialDelaySeconds Initial delay before startup probe is initiated
+  ## @param gitea.startupProbe.timeoutSeconds Timeout for startup probe
+  ## @param gitea.startupProbe.periodSeconds Period for startup probe
+  ## @param gitea.startupProbe.successThreshold Success threshold for startup probe
+  ## @param gitea.startupProbe.failureThreshold Failure threshold for startup probe
+  startupProbe:
+    enabled: false
+    tcpSocket:
+      port: http
+    initialDelaySeconds: 60
+    timeoutSeconds: 1
+    periodSeconds: 10
+    successThreshold: 1
+    failureThreshold: 10
+
+## @section redis-cluster
+## @param redis-cluster.enabled Enable redis cluster
 # ⚠️ The redis charts do not work well with special characters in the password (<https://gitea.com/gitea/helm-gitea/issues/690>).
 # Consider omitting such or open an issue in the Bitnami repo and let us know once this got fixed.
-## @param redis.global.redis.password Required password
-## @param redis.master.count Number of Redis master instances to deploy
+## @param redis-cluster.usePassword Whether to use password authentication
+## @param redis-cluster.cluster.nodes Number of redis cluster master nodes
+## @param redis-cluster.cluster.replicas Number of redis cluster master node replicas
 ## @descriptionStart
-## Redis and [Redis cluster](#redis-cluster) cannot be enabled at the same time.
+## Redis cluster and [Redis](#redis) cannot be enabled at the same time.
 ## @descriptionEnd
+redis-cluster:
+  enabled: false
 redis:
   enabled: true
   architecture: standalone
@@ -324,6 +497,9 @@ redis:
   master:
     count: 1
 
+
+postgresql-ha:
+  enabled: false
 postgresql:
   enabled: true
   global:
@@ -334,7 +510,7 @@ postgresql:
         username: gitea
       service:
         ports:
-          gitea-postgresql-0: 5432
+          postgresql: 5432
   primary:
     persistence:
       size: 10Gi
