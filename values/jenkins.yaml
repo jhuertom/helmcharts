@@ -50,7 +50,7 @@ controller:
       cpu: "2000m"
       memory: "4096Mi"
   jenkinsUrlProtocol: https
-  jenkinsUrl: https://jenkins.jhmk3s.duckdns.org
+  jenkinsUrl: https://jenkins2.jhmk8s.duckdns.org
   installPlugins: false
   # installPlugins:
   #   - kubernetes:4324.vfec199a_33512
@@ -88,11 +88,11 @@ controller:
       cert-manager.io/cluster-issuer: cert-duckdns-cert-manager-webhook-duckdns-production
       kubernetes.io/ingress.class: "nginx"
       traefik.ingress.kubernetes.io/redirect-entry-point: https
-    hostName: jenkins.jhmk3s.duckdns.org
+    hostName: jenkins2.jhmk8s.duckdns.org
     tls:
     - secretName: jenkins-tls-cert
       hosts:
-        - jenkins.jhmk3s.duckdns.org
+        - jenkins2.jhmk8s.duckdns.org
 
 agent:
   enabled: true
