@@ -1,4 +1,4 @@
-kubernetesURL: "https://jenkins.jhmk8s.duckdns.org"
+kubernetesURL: "https://kubernetes.default"
 
 ## Initial Password Setup.
 controller:
