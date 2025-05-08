@@ -23,7 +23,6 @@ nexus:
 
 ingress:
   enabled: true
-  ingressClassName: traefik
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "cert-duckdns-cert-manager-webhook-duckdns-production"
