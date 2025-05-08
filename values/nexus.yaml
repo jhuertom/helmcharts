@@ -7,12 +7,10 @@ nexus:
   docker:
     enabled: true
     registries:
-      - host: nexus1-docker.jhmk3s.duckdns.org
+      - host: nexus-docker.jhmk8s.duckdns.org
         port: 5000
         secretName: registry-secret
   env:
-    # minimum recommended memory settings for a small, person instance from
-    # https://help.sonatype.com/repomanager3/product-information/system-requirements
     - name: INSTALL4J_ADD_VM_PARAMS
       value: |-
         -Xms2703M -Xmx2703M
@@ -23,26 +21,20 @@ nexus:
     - name: NEXUS_SECURITY_RANDOMPASSWORD
       value: "true"
 
-  # resources:
-  #   requests:
-  #     cpu: 4
-  #     memory: 8Gi
-  #   limits:
-  #     cpu: 4
-  #     memory: 8Gi
-
 ingress:
   enabled: true
   ingressClassName: traefik
   annotations:
-    cert-manager.io/cluster-issuer: cert-manager-webhook-duckdns-production
-    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "cert-duckdns-cert-manager-webhook-duckdns-production"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
   hostPath: /
-  hostRepo: nexus1.jhmk3s.duckdns.org
+  hostRepo: nexus.jhmk8s.duckdns.org
   tls:
     - secretName: nexus-local-tls
       hosts:
-        - nexus1.jhmk3s.duckdns.org
+        - nexus.jhmk8s.duckdns.org
 
 service:
   name: nexus3
