@@ -2,9 +2,10 @@ kubernetesURL: "https://kubernetes.default"
 
 ## Initial Password Setup.
 controller:
-  createSecret: true
-  adminUser: "admin"
-  adminPassword: "passwd"
+  admin:
+    createSecret: true
+    username: "admin"
+    password: "passwd"
 
   ingress:
     enabled: true
