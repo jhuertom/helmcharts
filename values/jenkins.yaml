@@ -1,86 +1,10 @@
+kubernetesURL: "https://jenkins.jhmk8s.duckdns.org"
+
+## Initial Password Setup.
 controller:
-  # -- Used for label app.kubernetes.io/component
-  componentName: "jenkins-controller"
-  image:
-    registry: "docker.io"
-    repository: "jenkins/jenkins"
-    tag:
-    tagLabel: jdk21
-    pullPolicy: "Always"
-
-
-  # -- Set Number of executors
-  numExecutors: 0
-
-  # -- Sets the executor mode of the Jenkins node. Possible values are "NORMAL" or "EXCLUSIVE"
-  executorMode: "NORMAL"
-
-  # -- Append Jenkins labels to the controller
-  customJenkinsLabels: []
-
-  hostNetworking: false
-
-  # When enabling LDAP or another non-Jenkins identity source, the built-in admin account will no longer exist.
-  # If you disable the non-Jenkins identity store and instead use the Jenkins internal one,
-  # you should revert controller.admin.username to your preferred admin user:
-  admin:
-    username: "admin"
-    password: "passwd"
-
-    # -- The key in the existing admin secret containing the username
-    userKey: jenkins-admin-user
-    # -- The key in the existing admin secret containing the password
-    passwordKey: jenkins-admin-password
-
-    # The default configuration uses this secret to configure an admin user
-    # If you don't need that user or use a different security realm, then you can disable it
-    # -- Create secret for admin user
-    createSecret: true
-
-    # -- The name of an existing secret containing the admin credentials
-    existingSecret: ""
-  # -- Email address for the administrator of the Jenkins instance
-  jenkinsAdminEmail: jhuertom@gmail.com
-  jenkinsHome: "/var/jenkins_home"
-  resources:
-    requests:
-      cpu: "50m"
-      memory: "256Mi"
-    limits:
-      cpu: "2000m"
-      memory: "4096Mi"
-  jenkinsUrlProtocol: https
-  jenkinsUrl: https://jenkins3.jhmk8s.duckdns.org
-  installPlugins: false
-  # installPlugins:
-  #   - kubernetes:4324.vfec199a_33512
-  #   - workflow-aggregator:608.v67378e9d3db_1
-  #   - git:5.7.0
-  #   - configuration-as-code:1947.v7d33fe23569c
-
-  # If set to false, Jenkins will download the minimum required version of all dependencies.
-  # -- Download the minimum required version or latest version of all dependencies
-  installLatestPlugins: true
-
-  # -- Set to true to download the latest version of any plugin that is requested to have the latest version
-  installLatestSpecifiedPlugins: false
-
-  # -- List of plugins to install in addition to those listed in controller.installPlugins
-  additionalPlugins: []
-
-  # Without this; whenever the controller gets restarted (Evicted, etc.) it will fetch plugin updates that have the potential to cause breakage.
-  # Note that for this to work, `persistence.enabled` needs to be set to `true`
-  # -- Initialize only on first installation. Ensures plugins do not get updated inadvertently. Requires `persistence.enabled` to be set to `true`
-  initializeOnce: false
-
-  # Enable to always override the installed plugins with the values of 'controller.installPlugins' on upgrade or redeployment.
-  # -- Overwrite installed plugins on start
-  overwritePlugins: false
-
-  # Configures if plugins bundled with `controller.image` should be overwritten with the values of 'controller.installPlugins' on upgrade or redeployment.
-  # -- Overwrite plugins that are already installed in the controller image
-  overwritePluginsFromImage: true
-
+  adminSecret: true
+  adminUser: "admin"
+  adminPassword: "passwd"
 
   ingress:
     enabled: true
@@ -89,11 +13,11 @@ controller:
       cert-manager.io/cluster-issuer: "cert-duckdns-cert-manager-webhook-duckdns-production"
       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    hostName: jenkins3.jhmk8s.duckdns.org
+    hostName: jenkins.jhmk8s.duckdns.org
     tls:
     - secretName: jenkins-tls-cert
       hosts:
-        - jenkins3.jhmk8s.duckdns.org
+        - jenkins.jhmk8s.duckdns.org
 
 agent:
   enabled: true
