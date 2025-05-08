@@ -2,7 +2,7 @@ kubernetesURL: "https://kubernetes.default"
 
 ## Initial Password Setup.
 controller:
-  adminSecret: true
+  createSecret: true
   adminUser: "admin"
   adminPassword: "passwd"
 
