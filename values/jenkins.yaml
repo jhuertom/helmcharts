@@ -17,10 +17,6 @@ controller:
         X-Forwarded-Port 443
         X-Forwarded-For %[src]
     hostName: jenkins.jhuertom.com
-    tls:
-    - secretName: jenkins-tls-cert
-      hosts:
-        - jenkins.jhuertom.com
 agent:
   enabled: true
 persistence:
