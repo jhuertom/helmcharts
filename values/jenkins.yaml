@@ -1,28 +1,28 @@
 kubernetesURL: "https://kubernetes.default"
-
 ## Initial Password Setup.
 controller:
   admin:
     createSecret: true
     username: "admin"
     password: "passwd"
-
   ingress:
     enabled: true
     annotations:
-      kubernetes.io/ingress.class: "nginx"
-      cert-manager.io/cluster-issuer: "cert-duckdns-cert-manager-webhook-duckdns-production"
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    hostName: jenkins.jhmk8s.duckdns.org
+      kubernetes.io/ingress.class: "haproxy"
+      haproxy.org/load-balance: "roundrobin"
+      haproxy.org/backend-protocol: "http"
+      haproxy.org/server-proto: "h1"
+      haproxy.org/request-set-header: |
+        X-Forwarded-Proto https
+        X-Forwarded-Port 443
+        X-Forwarded-For %[src]
+    hostName: jenkins.jhuertom.com
     tls:
     - secretName: jenkins-tls-cert
       hosts:
-        - jenkins.jhmk8s.duckdns.org
-
+        - jenkins.jhuertom.com
 agent:
   enabled: true
-
 persistence:
   enabled: true
   storageClass: nfs-client
