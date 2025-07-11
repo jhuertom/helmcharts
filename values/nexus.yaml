@@ -2,7 +2,6 @@ image:
   repository: sonatype/nexus3
   tag: 3.64.0
   pullPolicy: IfNotPresent
-
 nexus:
   docker:
     enabled: true
@@ -20,11 +19,10 @@ nexus:
         -Djava.util.prefs.userRoot=/nexus-data/javaprefs
     - name: NEXUS_SECURITY_RANDOMPASSWORD
       value: "true"
-
 ingress:
   enabled: true
+  ingressClassName: haproxy
   annotations:
-      kubernetes.io/ingress.class: "haproxy"
       haproxy.org/load-balance: "roundrobin"
       haproxy.org/backend-protocol: "http"
       haproxy.org/server-proto: "h1"
@@ -34,19 +32,14 @@ ingress:
         X-Forwarded-For %[src]
   hostPath: /
   hostRepo: nexus.jhuertom.com
-
 service:
   name: nexus3
   enabled: true
   labels: {}
   annotations: {}
   type: ClusterIP
-
 persistence:
   enabled: true
   accessMode: ReadWriteOnce
   storageClass: nfs-client
   storageSize: 8Gi
-  # If PersistentDisk already exists you can create a PV for it by including the 2 following keypairs.
-  # pdName: nexus-data-disk
-  # fsType: ext4
